@@ -1,5 +1,4 @@
-﻿
-@{
+﻿@{
     ViewBag.Title = "Index";
     Layout = "~/Views/Share/_LayoutPage.cshtml";
 }
@@ -14,8 +13,6 @@
                 <td>@Model[key]</td>
             </tr>
         }
-
     </table>
-
 </div>
 @Html.ActionLink("Sign Out", "Logout", "Admin", null, new { @class = "btn btn-primary" })

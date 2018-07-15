@@ -12,16 +12,17 @@ using System.Web.Mvc;
 namespace IdentityASP.Controllers
 {
     [Authorize]
-
     public class RoleAdminController : Controller
     {
         // GET: RoleAdmin
         public ActionResult Index() => View(RoleManager.Roles);
+
         [HttpGet]
         public ActionResult Create()
         {
             return View();
         }
+
         [HttpPost]
         public async Task<ActionResult> Create([Required]string name)
         {
@@ -39,6 +40,7 @@ namespace IdentityASP.Controllers
             }
             return View(name);
         }
+
         [HttpGet]
         public async Task<ActionResult> Edit(string id)
         {
@@ -54,6 +56,7 @@ namespace IdentityASP.Controllers
                 NonMembers = nonMembers
             });
         }
+
         [HttpPost]
         public async Task<ActionResult> Edit(RoleModificationModel model)
         {
@@ -65,7 +68,6 @@ namespace IdentityASP.Controllers
                     try
                     {
                         result = await UserManager.AddToRoleAsync(userId, model.RoleName);
-
                     }
                     catch (Exception e)
                     {
@@ -91,6 +93,7 @@ namespace IdentityASP.Controllers
             }
             return View("Error", new string[] { "Role Not Found" });
         }
+
         [HttpPost]
         public async Task<ActionResult> Delete(string id)
         {
@@ -112,6 +115,7 @@ namespace IdentityASP.Controllers
                 return View("Error", new string[] { "Role Not Found" });
             }
         }
+
         private void AddErrorsFromResult(IdentityResult result)
         {
             foreach (string error in result.Errors)
@@ -119,6 +123,7 @@ namespace IdentityASP.Controllers
                 ModelState.AddModelError("", error);
             }
         }
+
         private AppRoleManager RoleManager => HttpContext.GetOwinContext().GetUserManager<AppRoleManager>();
         private AppUserManager UserManager => HttpContext.GetOwinContext().GetUserManager<AppUserManager>();
     }

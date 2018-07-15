@@ -4,7 +4,6 @@ using Microsoft.AspNet.Identity.Owin;
 using Microsoft.Owin.Security;
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Security.Claims;
 using System.Threading.Tasks;
 using System.Web;
@@ -21,6 +20,14 @@ namespace IdentityASP.Controllers
             IEnumerable<AppUser> users = UserManager.Users;
             return View(users);
         }
+
+        public ActionResult GetUsers(string id)
+        {
+            IEnumerable<AppUser> users = UserManager.Users;
+
+            return Json(users, JsonRequestBehavior.AllowGet);
+        }
+
         [AllowAnonymous]
         [HttpGet]
         public ActionResult Login(string returnUrl)
@@ -28,11 +35,11 @@ namespace IdentityASP.Controllers
             if (HttpContext.User.Identity.IsAuthenticated)
             {
                 return View("Error", new string[] { "Access Denied" });
-
             }
             ViewBag.returnUrl = returnUrl;
             return View();
         }
+
         [AllowAnonymous]
         [HttpPost]
         [ValidateAntiForgeryToken]
@@ -44,7 +51,6 @@ namespace IdentityASP.Controllers
                 if (user == null)
                 {
                     ModelState.AddModelError("", "Invalid name or password.");
-
                 }
                 else
                 {
@@ -59,35 +65,47 @@ namespace IdentityASP.Controllers
             }
             return View();
         }
+
         [Authorize]
         public ActionResult Logout()
         {
             AuthManager.SignOut();
             return RedirectToAction("Index", "Home");
         }
+
         [HttpGet]
         public ActionResult CreateUser()
         {
             return View();
         }
+
         [HttpPost]
         public async Task<ActionResult> CreateUser(CreateModel model)
         {
             if (ModelState.IsValid)
             {
-                AppUser newUser = new AppUser { UserName = model.UserName, Email = model.Email };
-                IdentityResult result = await UserManager.CreateAsync(newUser, model.Password);
-                if (result.Succeeded)
+                try
                 {
-                    return RedirectToAction("Index");
+                    AppUser newUser = new AppUser { UserName = model.UserName, Email = model.Email };
+                    IdentityResult result = await UserManager.CreateAsync(newUser, model.Password);
+                    if (result.Succeeded)
+                    {
+                        string message = "SUCCESS";
+                        return Json(new { message, JsonRequestBehavior.AllowGet });
+                    }
+                    else
+                    {
+                        return Json(new { result.Errors, JsonRequestBehavior.AllowGet });
+                    }
                 }
-                else
+                catch (Exception ex)
                 {
-                    AddErrorsFromResult(result);
+                    throw ex;
                 }
             }
-            return View(model);
+            return View();
         }
+
         [HttpGet]
         public async Task<ActionResult> Edit(string id)
         {
@@ -101,6 +119,7 @@ namespace IdentityASP.Controllers
                 return RedirectToAction("Index");
             }
         }
+
         [HttpPost]
         public async Task<ActionResult> Edit(string id, string email, string password)
         {
@@ -149,6 +168,7 @@ namespace IdentityASP.Controllers
             }
             return View(user);
         }
+
         [HttpPost]
         public async Task<ActionResult> Delete(string id)
         {
@@ -170,14 +190,15 @@ namespace IdentityASP.Controllers
                 return View("Error", new string[] { "User Not Found" });
             }
         }
+
         private void AddErrorsFromResult(IdentityResult result)
         {
             foreach (string error in result.Errors)
             {
                 ModelState.AddModelError("", error);
-
             }
         }
+
         private AppUserManager UserManager => HttpContext.GetOwinContext().GetUserManager<AppUserManager>();
 
         private IAuthenticationManager AuthManager => HttpContext.GetOwinContext().Authentication;

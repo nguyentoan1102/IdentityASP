@@ -1,10 +1,6 @@
 ﻿using IdentityASP.Models;
 using Microsoft.AspNet.Identity.EntityFramework;
-using System;
-using System.Collections.Generic;
 using System.Data.Entity;
-using System.Linq;
-using System.Web;
 
 namespace IdentityASP.Infrastructure
 {
@@ -15,8 +11,8 @@ namespace IdentityASP.Infrastructure
         }
 
         public static AppIdentityDbContext Create() => new AppIdentityDbContext();
+
         public DbSet<AppUser> AppUsers { get; set; }
         public DbSet<AppRole> AppRoles { get; set; }
     }
-
 }
